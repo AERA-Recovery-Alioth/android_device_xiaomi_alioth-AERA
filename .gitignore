@@ -1,1 +1,8 @@
-prebuilt/
+prebuilt/*
+!prebuilt/Image
+!prebuilt/dtbo.img
+!prebuilt/dtbs/
+prebuilt/dtbs/*
+!prebuilt/dtbs/alioth.dtb
+!prebuilt/README.md
+!prebuilt/SHA256SUMS

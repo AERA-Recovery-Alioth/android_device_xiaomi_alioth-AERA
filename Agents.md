@@ -11,7 +11,7 @@
 
 - User builds only. tools/build-recovery.sh builds bootimage; never flash placeholder vendor_boot.
 - Kernel prebuilt comes from the Android 17 alioth kernel; previous device-tested revision 321ce2cbf8fbe1533931ba17d8db6ca50e747a39, Linux 4.19.325-cip136-st20. No KernelSU integration.
-- Ignored prebuilt/ requires Image, dtbs/ and dtbo.img. Main kernel source is maintained in PocoF3Releases/kernel_xiaomi_sm8250, aosp-17.
+- Tracked prebuilt/ contains Image, dtbs/alioth.dtb and dtbo.img with provenance and SHA256SUMS. Main kernel source is maintained in PocoF3Releases/kernel_xiaomi_sm8250, aosp-17.
 - Header v3, Boot 201326592 bytes, vendor_boot 100663296 bytes. Recovery-as-boot. Only Boot is distributed.
 - tools/package-recovery.py reads the matching ROM ZIP OS/patch metadata, builds the final ramdisk, checks source/staged themes, validates the seven-domain policy and regenerates exact ramdisk-file checksums. It never flashes.
 - tools/package-installer.py signs recovery.zip using existing AOSP test-key/signapk tools and validates ZIP CRC, embedded image and payload hashes. Signed with a public test key, not a private signing identity.
