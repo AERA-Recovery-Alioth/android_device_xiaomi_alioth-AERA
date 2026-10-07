@@ -1,0 +1,30 @@
+From f5bb19fe6a935c7968c85693203be61adc456bd0 Mon Sep 17 00:00:00 2001
+From: johnmart19 <johnivan19999@gmail.com>
+Date: Wed, 7 Oct 2026 10:21:12 +0000
+Subject: [PATCH] f2fs-tools: Use shared C++ runtime for sload
+
+Match the runtime used by shared Android dependencies. The static/shared
+runtime mix aborted with std::bad_cast even for help/version invocation.
+The shared-runtime binary starts correctly with SELinux enforcing.
+
+Co-authored-by: codex <noreply@openai.com>
+---
+ Android.bp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Android.bp b/Android.bp
+index b18e7c7..44d6512 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -268,7 +268,7 @@ cc_binary {
+             ],
+         },
+     },
+-    stl: "libc++_static",
++    stl: "libc++",
+ }
+ 
+ cc_binary {
+-- 
+2.53.0
+
