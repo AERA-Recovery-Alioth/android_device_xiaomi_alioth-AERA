@@ -71,3 +71,6 @@ BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext product vendor 
 
 # Restore Qualcomm RTC offset from the decrypted time-service state.
 TARGET_RECOVERY_QCOM_RTC_FIX := true
+
+# Device labels and permissions for direct recovery hardware access.
+BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/recovery

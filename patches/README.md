@@ -27,3 +27,7 @@ formatting. Failed normal teardown aborts formatting.
 The f2fs-tools patch gives `sload_f2fs` the shared C++ runtime used by its
 Android shared dependencies, fixing the startup `std::bad_cast` crash.
 Global-permissive diagnostic images are temporary and are not release artifacts.
+
+Recovery 0008 opens existing haptic controls without requesting sysfs file
+creation or truncation, and reports failed/short writes. It addresses the
+observed activate_mode create denial without widening sysfs permissions.

@@ -1,0 +1,1 @@
+/dev/dri/card[0-9]+ u:object_r:vendor_alioth_recovery_drm_device:s0

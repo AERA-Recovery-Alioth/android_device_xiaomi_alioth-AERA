@@ -1,0 +1,3 @@
+type vendor_alioth_recovery_drm_device, dev_type;
+type vendor_alioth_recovery_backlight, fs_type, sysfs_type;
+type vendor_alioth_recovery_haptics, fs_type, sysfs_type;

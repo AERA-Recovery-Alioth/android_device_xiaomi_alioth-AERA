@@ -78,3 +78,21 @@ October 7 packaged artifacts (normal policy):
 - recovery.zip: fce1374d8dd81a5d8df049fff3a807dfab7102da0c838eb05b2d44921ca052a9
 - ZIP CRC and embedded image checks passed; live ZIP installation was not
   repeated in this cycle. Published October 5 assets are not these artifacts.
+
+## October 7 recovery device policy
+
+sepolicy/recovery contains exact DRM, panel brightness and AW8697 playback
+labels and recovery-only permissions, plus RTC sysfs reads. Policy/build
+checks passed; labels and removal of those recovery startup denials were
+verified live in a globally permissive diagnostic image. Seven PBRP service
+domains remain permissive; a fully enforcing recovery is not validated.
+Do not convert property enumeration or diagnostic shell denials to broad
+allow rules. See sepolicy/recovery/README.md for remaining validation.
+
+Follow-up: recovery patch 0008 removes O_CREAT/O_TRUNC from the haptic
+sysfs writer and checks failed/short writes. Built and temporarily booted;
+user confirmed menu navigation, brightness and haptics. The fresh audit
+contained no AW8697 control denials after these actions. Compared common
+ROM policy: same AW8697 I2C and PM8150 RTC paths; gain/calibration and HAL
+permissions are not required for recovery timed playback.
+Remaining PBRP-wide denials and enforcing validation are still separate.

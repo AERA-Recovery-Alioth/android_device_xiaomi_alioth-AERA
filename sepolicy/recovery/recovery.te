@@ -1,0 +1,7 @@
+# Direct Alioth recovery hardware access; no Android HAL permissions added.
+recovery_only(`
+  allow recovery vendor_alioth_recovery_drm_device:chr_file { getattr open read write ioctl map };
+  allow recovery vendor_alioth_recovery_backlight:file rw_file_perms;
+  allow recovery vendor_alioth_recovery_haptics:file rw_file_perms;
+  r_dir_file(recovery, sysfs_rtc)
+')
