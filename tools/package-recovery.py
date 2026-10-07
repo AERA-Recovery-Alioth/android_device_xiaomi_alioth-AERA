@@ -33,7 +33,7 @@ os_version = metadata["post-build"].split(":", 1)[1].split("/", 1)[0]
 patch_level = metadata["post-security-patch-level"][:7]
 policy = staging / "sepolicy"
 domains = set(subprocess.check_output([str(host / "sepolicy-analyze"), str(policy), "permissive"], text=True).split())
-expected = {"recovery", "init", "logd", "adbd", "fastbootd", "postinstall", "ueventd"}
+expected = {"recovery"}
 if domains != expected:
     raise SystemExit(f"Unexpected permissive domains: {sorted(domains)}")
 # Refresh minuitwrp even when an old build graph omitted its relink dependency.

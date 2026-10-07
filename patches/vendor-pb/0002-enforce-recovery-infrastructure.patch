@@ -1,0 +1,33 @@
+From 439f345bfc8f4d17d6bc085b2b6e9c63258df9d5 Mon Sep 17 00:00:00 2001
+From: johnmart19 <johnivan19999@gmail.com>
+Date: Wed, 7 Oct 2026 11:08:01 +0000
+Subject: [PATCH] recovery: Enforce infrastructure service domains
+
+Retain only the recovery domain as permissive while audited init, logd,
+adbd and ueventd infrastructure runs enforcing. Fastbootd/postinstall
+remain enforcing but operation coverage is tracked separately.
+
+Co-authored-by: codex <noreply@openai.com>
+---
+ sepolicy/public/twrp.te | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/sepolicy/public/twrp.te b/sepolicy/public/twrp.te
+index b8c1692..883aedf 100644
+--- a/sepolicy/public/twrp.te
++++ b/sepolicy/public/twrp.te
+@@ -1,11 +1,5 @@
+ recovery_only(`
+   permissive recovery;
+-  permissive init;
+-  permissive logd;
+-  permissive adbd;
+-  permissive fastbootd;
+-  permissive postinstall;
+-  permissive ueventd;
+   allow kernel unlabeled:file rw_file_perms;
+   allow kernel tmpfs:file { read };
+   allow kernel recovery:fd { use };
+-- 
+2.53.0
+

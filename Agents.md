@@ -13,7 +13,7 @@
 - Kernel prebuilt comes from the Android 17 alioth kernel; previous device-tested revision 321ce2cbf8fbe1533931ba17d8db6ca50e747a39, Linux 4.19.325-cip136-st20. No KernelSU integration.
 - Tracked prebuilt/ contains Image, dtbs/alioth.dtb and dtbo.img with provenance and SHA256SUMS. Main kernel source is maintained in PocoF3Releases/kernel_xiaomi_sm8250, aosp-17.
 - Header v3, Boot 201326592 bytes, vendor_boot 100663296 bytes. Recovery-as-boot. Only Boot is distributed.
-- tools/package-recovery.py reads the matching ROM ZIP OS/patch metadata, builds the final ramdisk, checks source/staged themes, validates the seven-domain policy and regenerates exact ramdisk-file checksums. It never flashes.
+- tools/package-recovery.py reads the matching ROM ZIP OS/patch metadata, builds the final ramdisk, checks source/staged themes, validates the recovery-only permissive-domain policy and regenerates exact ramdisk-file checksums. It never flashes.
 - tools/package-installer.py signs recovery.zip using existing AOSP test-key/signapk tools and validates ZIP CRC, embedded image and payload hashes. Signed with a public test key, not a private signing identity.
 - Direct Ninja sometimes leaves theme resources stale. Refresh/rebuild the theme; packaging fails on source/staged mismatch. Do not silently ship stale XML.
 
@@ -23,7 +23,7 @@
 - A17 Keymaster/keystore2 FBE metadata/password decryption uses matching boot OS/security patch metadata. User password validation passed. Never request a PIN in chat.
 - Virtual A/B property and product inheritance are required for ROM sideload. Verified EvolutionX-17.0-20261004-alioth-12.2-Unofficial.zip installation preserved userdata.
 - Magisk v31.0 bundled unmodified; recovery/root/twres/tools/MAGISK_SOURCE.md records upstream asset and SHA256. Installation only on explicit action. No KSU feature or payload.
-- Upstream PBRP seven permissive recovery domains: recovery/init/logd/adbd/fastbootd/postinstall/ueventd. User explicitly approved this recovery policy. Only sepolicy.recovery has an allowlist; neverallow and Android system/vendor policy checks remain intact. Shell is not permissive. Global Enforcing is not proof all domains enforce.
+- Only the shared recovery domain remains permissive. Infrastructure domains init/logd/adbd/fastbootd/postinstall/ueventd enforce. Only sepolicy.recovery has an allowlist; neverallow and Android system/vendor policy checks remain intact. Shell is not permissive. Global Enforcing is not proof all domains enforce.
 
 ## Partition and installer behavior
 
@@ -84,8 +84,7 @@ October 7 packaged artifacts (normal policy):
 sepolicy/recovery contains exact DRM, panel brightness and AW8697 playback
 labels and recovery-only permissions, plus RTC sysfs reads. Policy/build
 checks passed; labels and removal of those recovery startup denials were
-verified live in a globally permissive diagnostic image. Seven PBRP service
-domains remain permissive; a fully enforcing recovery is not validated.
+verified live in a globally permissive diagnostic image. The shared recovery domain remains permissive; a fully enforcing recovery is not validated.
 Do not convert property enumeration or diagnostic shell denials to broad
 allow rules. See sepolicy/recovery/README.md for remaining validation.
 
@@ -109,3 +108,21 @@ confirmed it works, and twrp.all.users.decrypted=true was read over ADB.
 Global SELinux was Enforcing; recovery itself remains permissive in the
 experimental infrastructure policy. This is not full enforcing validation.
 No Boot partition was flashed. Published release assets remain unchanged.
+
+## October 7 final infrastructure policy
+
+Vendor-PB patch 0002 removes six infrastructure permissive declarations;
+system-sepolicy patch 0002 permits only recovery in user recovery policy.
+Recovery patch 0009 adds the init-created logd control socket. Device policy
+allows measured init/logd rootfs transitions, logd rootfs reads, init search
+of recovery's inherited keyring, ueventd scheduling and exact USB mode and
+panel brightness writes. Android policy and neverallow checks remain intact.
+The patch series was replayed from all three documented baselines and
+matched the built source. User build and packaging passed, including policy
+validation, ZIP CRC and embedded image equality. Password unlock passed
+on the preceding image with this linker configuration. Final packaged image
+was temporarily booted; the user confirmed password unlock, touch, brightness and haptics.
+ADB verified twrp.all.users.decrypted=true and global Enforcing.
+Only recovery remains permissive: the UI and co-located decryption/Binder
+services are not fully enforcing. Fastbootd flashing, postinstall and live
+ZIP install were not revalidated in this cycle. Do not overstate coverage.

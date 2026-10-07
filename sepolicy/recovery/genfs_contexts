@@ -2,3 +2,5 @@ genfscon sysfs /devices/platform/soc/ae00000.qcom,mdss_mdp/backlight/panel0-back
 genfscon sysfs /devices/platform/soc/a8c000.i2c/i2c-2/2-005a/activate u:object_r:vendor_alioth_recovery_haptics:s0
 genfscon sysfs /devices/platform/soc/a8c000.i2c/i2c-2/2-005a/activate_mode u:object_r:vendor_alioth_recovery_haptics:s0
 genfscon sysfs /devices/platform/soc/a8c000.i2c/i2c-2/2-005a/duration u:object_r:vendor_alioth_recovery_haptics:s0
+
+genfscon sysfs /devices/platform/soc/a600000.ssusb/mode u:object_r:vendor_alioth_recovery_usb_mode:s0

@@ -1,0 +1,11 @@
+# Device manager scheduling; measured on the Alioth recovery kernel.
+recovery_only(`
+  # Recovery executables remain rootfs-labeled, as in AOSP recovery transitions.
+  domain_trans(init, rootfs, logd)
+  r_dir_file(logd, rootfs)
+  allow init vendor_alioth_recovery_backlight:file w_file_perms;
+  # init searches the inherited recovery keyring when starting services.
+  allow init recovery:key search;
+  allow init vendor_alioth_recovery_usb_mode:file w_file_perms;
+  allow ueventd self:global_capability_class_set sys_nice;
+')

@@ -31,3 +31,10 @@ Global-permissive diagnostic images are temporary and are not release artifacts.
 Recovery 0008 opens existing haptic controls without requesting sysfs file
 creation or truncation, and reports failed/short writes. It addresses the
 observed activate_mode create denial without widening sysfs permissions.
+
+October 7 enforcement: vendor-pb/0002 removes the six infrastructure
+permissive declarations. system-sepolicy/0002 limits the recovery user-build
+allowlist to recovery only. Recovery/0009 supplies logd's init-owned control
+socket. Device policy adds measured rootfs, keyring, scheduling and exact USB
+mode access. Recovery's shared UI/decryption domain remains permissive; do
+not describe this as a fully enforcing recovery.

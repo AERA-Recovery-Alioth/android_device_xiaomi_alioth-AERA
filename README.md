@@ -17,7 +17,7 @@ Evolution X build. Supported codenames: **alioth, aliothin**.
   Tools, with official provenance and checksum alongside the package.
 
 Do not flash the generated placeholder vendor_boot. Neither image nor ZIP
-formats userdata. Recovery uses PBRP's seven upstream permissive service domains;
+formats userdata. Only the shared recovery domain remains permissive; infrastructure services enforce.
 Android policy and neverallow checks remain intact. It is not fully enforcing.
 
 ## Verified and remaining checks

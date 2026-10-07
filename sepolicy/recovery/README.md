@@ -15,10 +15,16 @@ Gain/calibration/register interfaces are deliberately not exposed here.
 Build and neverallow checks passed. In a temporary globally permissive audit,
 the labels applied and previous recovery DRM/backlight/RTC startup denials
 were absent. Physical menu navigation, brightness and haptics passed user testing
-with patch 0008; credential decryption with these labels remains pending. Shell diagnostic denials are not production
+with patch 0008. Password decryption, menus, brightness and haptics passed
+on the October 7 packaged image with global SELinux Enforcing. Shell diagnostic denials are not production
 requirements.
 
 This is targeted device policy, not a fully enforcing PBRP conversion.
-PBRP's seven permissive service domains are retained. General property
+Only the shared recovery domain remains permissive. General property
 enumeration, co-located services, APEX/filesystem operations and installation
 need a separate full enforcing-policy audit. Do not claim they were solved.
+
+Infrastructure enforcement is recorded in ENFORCING_AUDIT.md. The release
+packager accepts only recovery as permissive; widening this set requires
+explicit review. USB mode labeling is restricted to Alioth's physical
+/sys/devices/platform/soc/a600000.ssusb/mode node.

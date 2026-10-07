@@ -1,0 +1,28 @@
+From 16f77e85b0d8d2c927959c627f1220370508e2e9 Mon Sep 17 00:00:00 2001
+From: johnmart19 <johnivan19999@gmail.com>
+Date: Wed, 7 Oct 2026 11:22:57 +0000
+Subject: [PATCH] recovery: Limit permissive user policy to the recovery domain
+
+Enforce infrastructure domains and keep Android policy checks intact.
+
+Co-authored-by: codex <noreply@openai.com>
+---
+ Android.bp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Android.bp b/Android.bp
+index e059738..4ece3ff 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -808,7 +808,7 @@ se_policy_binary {
+     name: "sepolicy.recovery",
+     // Upstream PBRP recovery services; does not change Android policy checks.
+     permissive_domains_on_user_builds: [
+-        "recovery", "init", "logd", "adbd", "fastbootd", "postinstall", "ueventd",
++        "recovery",
+     ],
+     srcs: [":recovery_sepolicy.cil"],
+     stem: "sepolicy",
+-- 
+2.53.0
+

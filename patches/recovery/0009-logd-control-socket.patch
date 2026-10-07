@@ -1,0 +1,28 @@
+From 03a86f092a7feb24f2c70a5e630f74efee6bc4cc Mon Sep 17 00:00:00 2001
+From: johnmart19 <johnivan19999@gmail.com>
+Date: Wed, 7 Oct 2026 11:08:01 +0000
+Subject: [PATCH] recovery: Declare the logd control socket in init
+
+Match the AOSP logd socket contract. Without the control socket, logd
+tries to create it itself and fails under enforcing policy.
+
+Co-authored-by: codex <noreply@openai.com>
+---
+ etc/init.recovery.logd.rc | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/etc/init.recovery.logd.rc b/etc/init.recovery.logd.rc
+index ed413911..584059ff 100644
+--- a/etc/init.recovery.logd.rc
++++ b/etc/init.recovery.logd.rc
+@@ -3,6 +3,7 @@ on init
+ 
+ service logd /system/bin/logd
+     class core
++    socket logd stream 0666 root root
+     socket logdr seqpacket 0666 root root
+     socket logdw dgram+passcred 0222 root root
+     file /proc/kmsg r
+-- 
+2.53.0
+
