@@ -1,0 +1,10 @@
+# Recovery-only Qualcomm decryption libraries must remain discoverable when
+# secure service execution ignores LD_LIBRARY_PATH.
+dir.recovery = /system/bin
+[recovery]
+namespace.default.isolated = false
+namespace.default.search.paths = /system/${LIB}:/vendor/${LIB}
+namespace.default.asan.search.paths = /data/asan/system/${LIB}
+namespace.default.asan.search.paths += /system/${LIB}
+namespace.default.hwasan.search.paths = /system/${LIB}/hwasan
+namespace.default.hwasan.search.paths += /system/${LIB}

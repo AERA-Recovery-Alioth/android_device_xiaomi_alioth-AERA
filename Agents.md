@@ -96,3 +96,16 @@ contained no AW8697 control denials after these actions. Compared common
 ROM policy: same AW8697 I2C and PM8150 RTC paths; gain/calibration and HAL
 permissions are not required for recovery timed playback.
 Remaining PBRP-wide denials and enforcing validation are still separate.
+
+## October 7 password startup linker fix
+
+With init enforcing, qseecomd could not load libQSEEComAPI.so despite its
+presence under /vendor/lib64. Recovery stopped at the splash while
+keystore2 waited for Keymaster. Recovery-only system/etc/ld.config.txt now
+includes /vendor/${LIB} in the default search path, avoiding dependence on
+LD_LIBRARY_PATH during secure execution. Keep system libraries first.
+A temporary boot with this configuration reached the password UI; the user
+confirmed it works, and twrp.all.users.decrypted=true was read over ADB.
+Global SELinux was Enforcing; recovery itself remains permissive in the
+experimental infrastructure policy. This is not full enforcing validation.
+No Boot partition was flashed. Published release assets remain unchanged.
