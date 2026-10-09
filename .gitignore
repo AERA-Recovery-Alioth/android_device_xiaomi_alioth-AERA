@@ -6,3 +6,7 @@ prebuilt/dtbs/*
 !prebuilt/dtbs/alioth.dtb
 !prebuilt/README.md
 !prebuilt/SHA256SUMS
+
+# Python packaging bytecode is local build output.
+__pycache__/
+*.py[cod]

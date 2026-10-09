@@ -9,7 +9,10 @@ import zipfile
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--rom", type=Path, required=True, help="Target Alioth ROM ZIP")
+metadata_source = parser.add_mutually_exclusive_group(required=True)
+metadata_source.add_argument("--rom", type=Path, help="Target Alioth ROM ZIP")
+metadata_source.add_argument("--metadata-boot", type=Path, help="Previously matched recovery Boot image; retain its OS/patch metadata")
+parser.add_argument("--security-patch", help="Verified installed-ROM patch YYYY-MM; override retained Boot metadata")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[4]
 product = root / "out/target/product/alioth"
@@ -25,12 +28,30 @@ for source, destination in (
     if source.read_bytes() != destination.read_bytes():
         raise SystemExit(f"Stale recovery resource: {destination}; rebuild the theme before packaging")
 
-with zipfile.ZipFile(args.rom) as archive:
-    metadata = dict(line.split("=", 1) for line in archive.read("META-INF/com/android/metadata").decode().splitlines() if "=" in line)
-if not {"alioth", "aliothin"}.intersection(metadata.get("pre-device", "").split(",")):
-    raise SystemExit("ROM does not target Alioth")
-os_version = metadata["post-build"].split(":", 1)[1].split("/", 1)[0]
-patch_level = metadata["post-security-patch-level"][:7]
+if args.rom:
+    with zipfile.ZipFile(args.rom) as archive:
+        metadata = dict(line.split("=", 1) for line in archive.read("META-INF/com/android/metadata").decode().splitlines() if "=" in line)
+    if not {"alioth", "aliothin"}.intersection(metadata.get("pre-device", "").split(",")):
+        raise SystemExit("ROM does not target Alioth")
+    os_version = metadata["post-build"].split(":", 1)[1].split("/", 1)[0]
+    patch_level = metadata["post-security-patch-level"][:7]
+else:
+    import struct
+    with args.metadata_boot.open("rb") as image:
+        header = image.read(44)
+    if len(header) != 44 or header[:8] != b"ANDROID!" or struct.unpack_from("<I", header, 40)[0] != 3:
+        raise SystemExit("Metadata source must be a header-v3 Android Boot image")
+    version = struct.unpack_from("<I", header, 16)[0]
+    os_version = f"{(version >> 25) & 127}.{(version >> 18) & 127}.{(version >> 11) & 127}"
+    month = version & 15
+    if not version or not 1 <= month <= 12:
+        raise SystemExit("Metadata source has missing/invalid OS or patch metadata")
+    patch_level = f"{2000 + ((version >> 4) & 127):04d}-{month:02d}"
+if args.security_patch:
+    import re
+    if not args.metadata_boot or not re.fullmatch(r"20[0-9]{2}-(0[1-9]|1[0-2])", args.security_patch):
+        raise SystemExit("--security-patch requires --metadata-boot and valid YYYY-MM")
+    patch_level = args.security_patch
 policy = staging / "sepolicy"
 domains = set(subprocess.check_output([str(host / "sepolicy-analyze"), str(policy), "permissive"], text=True).split())
 expected = {"recovery"}

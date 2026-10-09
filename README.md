@@ -3,7 +3,7 @@
 PBRP 4.0, Android 14 recovery userspace compatible with the tested Android 17
 Evolution X build. Supported codenames: **alioth, aliothin**.
 
-[Download the final release](https://github.com/PocoF3Releases/device_xiaomi_alioth-pbrp/releases/tag/pbrp-4.0-20261005).
+Source and future releases: [pbrp-alioth/device_xiaomi_alioth-pbrp](https://github.com/pbrp-alioth/device_xiaomi_alioth-pbrp). No release assets have been published in this standalone repository.
 
 ## Installation
 
@@ -12,7 +12,7 @@ Evolution X build. Supported codenames: **alioth, aliothin**.
   or **Install Recovery from Image**. The current option appears first.
 - `recovery.zip` installs the recovery ramdisk into **active Boot**, retaining
   its kernel/header. It requires neither decrypted storage nor a persistent
-  backup. This ZIP path passed file-based checks; live ZIP installation is untested.
+  backup. Signed ZIP installation and written-image verification passed on October 9.
 - Reinstall Magisk after ramdisk installation. Magisk v31.0 is bundled under
   Tools, with official provenance and checksum alongside the package.
 
@@ -32,7 +32,7 @@ remain unverified. GUI frame pacing is configured for 120 FPS.
 
 Use a PBRP Android 14 checkout with this tree at `device/xiaomi/alioth`.
 Apply the pinned sibling [patch series](patches/README.md) once to clean bases.
-Provide the matching Android 17 kernel/DTB/DTBO in ignored `prebuilt/`:
+The matching Android 17 kernel/DTB/DTBO are tracked in `prebuilt/`:
 `Image`, `dtbs/`, and `dtbo.img`; kernel sources are maintained separately.
 Run `device/xiaomi/alioth/tools/build-recovery.sh` (user build, Boot only).
 
@@ -47,3 +47,28 @@ python3 device/xiaomi/alioth/tools/package-installer.py
 Deliverables: `out/release-candidate/recovery_boot.img`, `recovery.zip` and
 `SHA256SUMS`. ZIP signing uses the public AOSP test key, not a private release key.
 Development handoff: [Agents.md](Agents.md).
+
+## Recovery runtime and current ROM metadata
+
+Recovery patches 0010–0012 keep the installed Android System outside recovery's
+/system and isolate bundled Magisk mounts. The Boot OS/security-patch header must
+match the installed ROM, or Keymaster can reject metadata-encryption keys.
+For incremental work without the ROM ZIP, retain OS metadata from a previously
+matched Boot image and explicitly supply a verified current patch if it changed:
+
+```sh
+python3 device/xiaomi/alioth/tools/package-recovery.py \
+  --metadata-boot /path/to/previous-recovery.img --security-patch 2026-10
+```
+
+October 2026 is the observed current ROM patch, not a permanent default for all
+future releases. This does not authorize access to ~/evo/out.
+
+### Recovery-local installer signing
+
+After `lunch pb_alioth-user`, run `m -j4 signapk` in the recovery checkout
+before `python3 device/xiaomi/alioth/tools/package-installer.py`. Signing uses
+recovery-local JDK 17, SignApk, JNI libraries and AOSP public test keys. The
+packager fails before creating the ZIP if signing tools are missing. It never
+uses the ROM output directory. CRC, embedded image equality and both payload
+checksums are checked explicitly, including under optimized Python.

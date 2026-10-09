@@ -1,0 +1,35 @@
+From fc496b348b749f188e9d68c082e49cd65211c8de Mon Sep 17 00:00:00 2001
+From: johnmart19 <johnmart19@users.noreply.github.com>
+Date: Fri, 9 Oct 2026 20:11:18 +0000
+Subject: [PATCH] recovery: Keep Android system mount outside the ramdisk
+ runtime
+
+Reject non-SAR System mount-point switching on recovery-as-boot. Switching to /system bypassed the bind guard and hid the ramdisk linker after password/UI transitions.
+
+Co-authored-by: codex <noreply@openai.com>
+---
+ partitionmanager.cpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/partitionmanager.cpp b/partitionmanager.cpp
+index 739db97..5c65879 100755
+--- a/partitionmanager.cpp
++++ b/partitionmanager.cpp
+@@ -4334,6 +4334,14 @@ bool TWPartitionManager::Recreate_Logs_Dir() {
+ }
+ 
+ void TWPartitionManager::Change_System_Root(bool root) {
++#ifdef BOARD_USES_RECOVERY_AS_BOOT
++	// /system contains recovery's linker and services, not the installed OS.
++	if (!root) {
++		DataManager::SetValue(PB_MOUNT_SYSTEM_AS_ROOT, "1");
++		LOGINFO("Keeping Android System at /system_root to preserve recovery runtime\n");
++		return;
++	}
++#endif
+ 	TWPartition* part =
+ 			Find_Partition_By_Path(property_get_bool("ro.twrp.sar", false) ? "/system_root" : "/system");
+ 	if (part == nullptr) {
+-- 
+2.53.0
+

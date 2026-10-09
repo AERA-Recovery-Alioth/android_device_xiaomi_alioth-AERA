@@ -39,7 +39,7 @@ cmp original/kernel verify/kernel || fail "Kernel preservation check failed."
 cmp original/header verify/header || fail "Boot header preservation check failed."
 SIZE=$(wc -c < original/new-boot.img)
 [ "$SIZE" -gt 0 ] && [ "$SIZE" -le "$PARTSIZE" ] || fail "Repacked Boot exceeds partition size."
-ui "PBRP recovery uses upstream permissive service policy."
+ui "Only the shared recovery domain is permissive; infrastructure domains enforce."
 ui "Installing recovery ramdisk into active boot$SLOT; current kernel is preserved."
 ui "No persistent backup is created. Reinstall Magisk afterward."
 dd if=original/new-boot.img of="$BOOT" bs=4096 conv=fsync || fail "Boot write failed; original is retained at $WORK/boot-original.img until reboot."

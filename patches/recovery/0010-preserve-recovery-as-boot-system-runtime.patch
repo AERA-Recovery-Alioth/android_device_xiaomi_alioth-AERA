@@ -1,0 +1,43 @@
+From d58e186ae446b289d7ecd955f895476deaa10265 Mon Sep 17 00:00:00 2001
+From: johnmart19 <johnmart19@users.noreply.github.com>
+Date: Fri, 9 Oct 2026 20:04:38 +0000
+Subject: [PATCH] recovery: Preserve ramdisk system runtime on recovery-as-boot
+
+Do not bind installed Android system over recovery /system or unmount the ramdisk runtime. The running UI otherwise survives while shell/services fail because the mounted OS linker points at an unavailable runtime APEX. Keep Android at /system_root.
+
+Co-authored-by: codex <noreply@openai.com>
+---
+ partition.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/partition.cpp b/partition.cpp
+index 5baaed0..57ee008 100755
+--- a/partition.cpp
++++ b/partition.cpp
+@@ -1703,7 +1703,9 @@ bool TWPartition::Bind_Mount(bool Display_Error) {
+ 		}
+ 	}
+ 
+- #ifndef TW_NO_BIND_SYSTEM
++// Recovery-as-boot owns /system; binding Android over it hides the recovery
++// linker, shell and services. Keep the installed OS at /system_root instead.
++#if !defined(TW_NO_BIND_SYSTEM) && !defined(BOARD_USES_RECOVERY_AS_BOOT)
+ 	if (Mount_Point == "/system_root") {
+ 		unlink("/system");
+ 		mkdir("/system", 0755);
+@@ -1714,10 +1716,12 @@ bool TWPartition::Bind_Mount(bool Display_Error) {
+ }
+ 
+ bool TWPartition::UnMount(bool Display_Error, int flags) {
++#if !defined(TW_NO_BIND_SYSTEM) && !defined(BOARD_USES_RECOVERY_AS_BOOT)
+ 	if (Mount_Point == "/system_root") {
+ 		if (umount("/system") == -1)
+ 			umount2("/system", MNT_DETACH);
+ 	}
++#endif
+ 	if (Is_Mounted()) {
+ 		int never_unmount_system;
+ 
+-- 
+2.53.0
+

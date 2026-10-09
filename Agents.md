@@ -2,7 +2,7 @@
 
 ## Scope and source
 
-- Device tree: PocoF3Releases/device_xiaomi_alioth-pbrp, branch pbrp-a17.
+- Device tree: pbrp-alioth/device_xiaomi_alioth-pbrp, branch pbrp-a17.
 - Recovery root is a PBRP Android 14 checkout; ROM development is in a separate evo checkout. Recovery userspace is intentionally Android 14; target ROM is Android 17.
 - Supported identifiers: alioth (POCO F3 / Redmi K40), aliothin (Mi 11X). ROM variants use INDIA/GLOBAL/fallback region detection. Recovery OTA assertions, board-info and installer accept both; no ROM NFC/branding override is necessary for recovery.
 - Source/authoritative patch bases and application order: patches/README.md. Final recovery series replay matched the built Git tree exactly; preserve upstream authorship.
@@ -14,7 +14,7 @@
 - Tracked prebuilt/ contains Image, dtbs/alioth.dtb and dtbo.img with provenance and SHA256SUMS. Main kernel source is maintained in PocoF3Releases/kernel_xiaomi_sm8250, aosp-17.
 - Header v3, Boot 201326592 bytes, vendor_boot 100663296 bytes. Recovery-as-boot. Only Boot is distributed.
 - tools/package-recovery.py reads the matching ROM ZIP OS/patch metadata, builds the final ramdisk, checks source/staged themes, validates the recovery-only permissive-domain policy and regenerates exact ramdisk-file checksums. It never flashes.
-- tools/package-installer.py signs recovery.zip using existing AOSP test-key/signapk tools and validates ZIP CRC, embedded image and payload hashes. Signed with a public test key, not a private signing identity.
+- tools/package-installer.py signs recovery.zip using recovery-local AOSP test-key/signapk tools and validates ZIP CRC, embedded image and payload hashes. Build missing signing tools with `m signapk` in the recovery checkout; packaging must never depend on evo/out. Signed with a public test key, not a private signing identity.
 - Direct Ninja sometimes leaves theme resources stale. Refresh/rebuild the theme; packaging fails on source/staged mismatch. Do not silently ship stale XML.
 
 ## Runtime capabilities
@@ -32,7 +32,7 @@
 - Install browser starts in /data/media/0. Unsupported SD repartition, repair/resize/conversion, manual snapshot/unmap, legacy fixes, kernel replacement and unfinished OTA pages are hidden/guarded.
 - Advanced: Install Current Recovery first (confirmed successful on-device), then Install Recovery from Image. Current opens swipe confirmation, image opens picker. Both preserve the existing kernel and update only active Boot. Image-path backup follows the checkbox; no forced persistent backup.
 - Flash Current uses the upstream ramdisk file-integrity check; packaging must update hashes for shipped contents, never bypass the check. Packaged integrity check passed across 3500 files.
-- recovery.zip stages original Boot only in /tmp, preserves kernel/header, replaces ramdisk, checks size and verifies written bytes. No decryption/OTG/cache backup dependency; no automatic reboot or slot switch. Live ZIP install remains untested.
+- recovery.zip stages original Boot only in /tmp, preserves kernel/header, replaces ramdisk, checks size and verifies written bytes. No decryption/OTG/cache backup dependency; no automatic reboot or slot switch. October 9 signed ZIP sideload was device-tested: user confirmed the written-image verification message and successful bundled Magisk reinstall.
 - Ramdisk replacement removes the prior Magisk patch; reinstall Magisk afterward.
 
 ## Evidence and limits
@@ -40,7 +40,7 @@
 - User recovery build passed, including Android precompiled policy. Final runtime had recovery/logd processes, userdata decrypted=true and USB mtp,adb. UI/touch/haptics and shortened menus confirmed by user.
 - Password decryption, ROM sideload, bundled Magisk install and Boot backup were verified earlier. Current recovery installation completed successfully with image-flash completion on-screen.
 - Exact PBRP magiskboot host repack preserved original kernel/header and fitted the 201326592-byte Boot partition. ZIP CRC/image and final ramdisk-file hashes verified.
-- Data restore, other credential types, Mi 11X/Redmi K40 physical tests, live image-picker install and live standalone ZIP install remain unverified. Do not format/restore userdata merely to test UI.
+- Data restore, other credential types, Mi 11X/Redmi K40 physical tests and live image-picker install remain unverified. Standalone ZIP acceptance is recorded below. Do not format/restore userdata merely to test UI.
 
 ## Windows / WSL device work
 
@@ -126,3 +126,89 @@ ADB verified twrp.all.users.decrypted=true and global Enforcing.
 Only recovery remains permissive: the UI and co-located decryption/Binder
 services are not fully enforcing. Fastbootd flashing, postinstall and live
 ZIP install were not revalidated in this cycle. Do not overstate coverage.
+
+## October 9 System mount runtime fix
+
+The live UI worked but Magisk/decryption failed after Android System was bound
+over /system. ADB sync could read the OS shell, whose /system/bin/linker64
+interpreter was missing; command launch returned ENOENT. Recovery patch 0010
+prevents that bind/unmount for BOARD_USES_RECOVERY_AS_BOOT, leaving the OS at
+/system_root and preserving ramdisk shell/linker/services. User build and package/integrity checks passed. Temporarily booted on slot B:
+ADB shell works, ramdisk linker is present, recovery/Keymaster/keystore2 run and
+global SELinux is Enforcing. Final October-matched image: password decryption and bundled Magisk installation
+confirmed by the user; ADB reads twrp.all.users.decrypted=true and its shell/linker
+remain usable after installation.
+
+Packaging may use --metadata-boot with a previously ROM-matched header-v3
+recovery image to preserve its OS/security patch when the ROM ZIP is inaccessible.
+This cannot establish that the installed ROM matches; use --rom for a new ROM.
+Never access ~/evo/out. ~/pbrp-alioth/out is allowed for recovery work.
+
+The first guard restored initial command launch, but password/UI transitions
+could still move Android System onto /system. Patch 0011 blocks that switch;
+0012 isolates bundled Magisk's own mounts in an updater child namespace. ARM
+and ARM64 updater compilation and user Boot rebuild/package passed. Final live
+password/Magisk validation passed on the October-matched image; initial guard
+alone was insufficient.
+
+Live Keymaster rejected metadata-key upgrade with INVALID_ARGUMENT (-38) when
+the Boot header carried September but the installed ROM reported 2026-10-01.
+Repackaging with verified October metadata restored the dm-backed Data mount
+on slot B. The packaged image uses 17.0.0 / 2026-10; password and bundled Magisk final
+acceptance passed (user-confirmed, with decrypted=true read over ADB). Keep header metadata matched to the current ROM.
+--security-patch YYYY-MM is permitted only with --metadata-boot for a verified
+installed-ROM patch override; --rom remains preferred for a new ROM package.
+
+Initial accepted October 9 candidate (superseded by follow-up packages):
+- recovery_boot.img: 2da44881c418359a715b5f6563d0769947311f3feb4771d834e9583578807489
+- recovery.zip: f24afbee41f5663f2d3bf0924cc9c722487d1e98c476ce429c52acf4f13a9a61
+Temporary boot stayed on slot B. Bundled Magisk installation was confirmed;
+parent recovery shell/linker remained intact afterward. Standalone recovery.zip
+installation and subsequent Android boot were not retested in this cycle.
+
+## October 9 recovery-local signing and ZIP acceptance
+
+Removed the installer packager dependency on ROM output signing tools. All
+signing inputs now come from this recovery checkout: JDK 17, built SignApk/JNI
+and AOSP public test keys. `m -j4 signapk` and optimized-Python packaging passed.
+ZIP CRC, embedded image equality and payload hashes are explicitly checked.
+Corrected the installer policy message and patch guide to reflect only recovery
+being permissive. The recovery Boot image remains unchanged.
+
+Updated ZIP SHA256: 10e9903810feef40e045fbfa94e4693d706c9b42adbc139bab7d48fa869b3736.
+Active-slot Boot was backed up privately and hash-verified before testing.
+Sideload transport became ready after the USB transition; transfer completed.
+User confirmed the ZIP written-image verification message and bundled Magisk
+reinstall success. ADB afterward confirmed decrypted=true, slot B and intact
+linker/shell. No Data format, slot switch or vendor_boot flash was performed.
+
+## October 9 recovery reboot BCB label
+
+Reboot Recovery/fastboot could restart only the recovery process: init failed
+to write the bootloader control block because Alioth misc `/dev/block/sda11`
+had generic `block_device` context. Live AVCs showed init write denied with
+permissive=0. Recovery file_contexts now labels exactly that verified node
+`misc_block_device`; the existing platform init rule supplies write access.
+No broad block-device allow or permissive-domain change was added. User build,
+context validation and recovery-local packaging passed.
+
+Live policy-only deployment preserved the working Magisk ramdisk, kernel and
+header; only file_contexts.bin, vendor_file_contexts and ramdisk checksums
+changed. Temporary Android boot completed with Magisk 31.0. The verified image
+was flashed only to active boot_b. Recovery showed misc_block_device, globally
+Enforcing and decrypted=true. `adb reboot recovery` reset kernel uptime and
+returned to recovery, with no previous init misc-write denial.
+
+Fastbootd then enumerated, but its 18d1:d00d identity had Windows driver Code 28.
+The installed signed Google driver supports 18d1:4ee0, so recovery USB config
+now uses that standard generic fastboot identity. This is a source/build fix;
+its final live driver compatibility test remains pending device transport.
+Windows driver binding needs administrator access; do not weaken recovery
+policy to work around a host driver issue.
+
+Final follow-up user build and packaging passed, including theme/policy/integrity,
+optimized-Python ZIP CRC, embedded image and payload hashes. Local candidate
+(not yet device-tested with the new fastboot USB ID):
+
+- c3a28f66381226995a98bdd2186479750f62f8922e869a604753ad117b64a8fd  recovery_boot.img
+- eef82bb2c0b8fec2107875f11e81bbe2197d456494bdc4783296ca8a1ae7a1a2  recovery.zip

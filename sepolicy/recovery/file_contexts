@@ -1,1 +1,4 @@
 /dev/dri/card[0-9]+ u:object_r:vendor_alioth_recovery_drm_device:s0
+
+# Alioth misc (BCB): init writes recovery/fastboot requests before reboot.
+/dev/block/sda11 u:object_r:misc_block_device:s0
