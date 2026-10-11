@@ -10,7 +10,7 @@
 ## Build and packaging
 
 - User builds only. tools/build-recovery.sh builds bootimage; never flash placeholder vendor_boot.
-- Kernel prebuilt comes from the Android 17 alioth kernel; previous device-tested revision 321ce2cbf8fbe1533931ba17d8db6ca50e747a39, Linux 4.19.325-cip136-st20. No KernelSU integration.
+- Kernel prebuilt comes from the Android 17 alioth kernel; shipped device-tested revision [ac2a025a05e6](https://github.com/PocoF3Releases/kernel_xiaomi_sm8250/commit/ac2a025a05e6f6d9cf12b020c739019fafb33987), Linux 4.19.325-cip136-st20. No KernelSU integration.
 - Tracked prebuilt/ contains Image, dtbs/alioth.dtb and dtbo.img with provenance and SHA256SUMS. Main kernel source is maintained in PocoF3Releases/kernel_xiaomi_sm8250, aosp-17.
 - Header v3, Boot 201326592 bytes, vendor_boot 100663296 bytes. Recovery-as-boot. Only Boot is distributed.
 - tools/package-recovery.py reads the matching ROM ZIP OS/patch metadata, builds the final ramdisk, checks source/staged themes, validates the recovery-only permissive-domain policy and regenerates exact ramdisk-file checksums. It never flashes.
@@ -212,3 +212,16 @@ optimized-Python ZIP CRC, embedded image and payload hashes. Local candidate
 
 - c3a28f66381226995a98bdd2186479750f62f8922e869a604753ad117b64a8fd  recovery_boot.img
 - eef82bb2c0b8fec2107875f11e81bbe2197d456494bdc4783296ca8a1ae7a1a2  recovery.zip
+
+## October 11 source checkpoint
+
+Standalone device source: [pbrp-alioth](https://github.com/pbrp-alioth/device_xiaomi_alioth-pbrp/tree/pbrp-a17). All five repositories have only the default branch `pbrp-a17`. Recovery userspace remains Android 14.
+
+| Sibling | Verified implementation commit |
+| --- | --- |
+| `android_bootable_recovery` | [ef490e810b0a](https://github.com/pbrp-alioth/android_bootable_recovery/commit/ef490e810b0a1d3c12f330242546824327ef9c51) |
+| `vendor_pb` | [4f5dc08aafdb](https://github.com/pbrp-alioth/vendor_pb/commit/4f5dc08aafdb70063da058b2bcc8e5e8c04cad05) |
+| `android_system_sepolicy` | [edc77e62099a](https://github.com/pbrp-alioth/android_system_sepolicy/commit/edc77e62099aae9c136c1beff24baa34eb70ba14) |
+| `android_external_f2fs-tools` | [efd0dc9a3a58](https://github.com/pbrp-alioth/android_external_f2fs-tools/commit/efd0dc9a3a58ad7f4a1d83e6a0fe0028df228238) |
+
+All four patch series replayed from their documented clean bases to exactly the published sibling trees. History consolidation preserved runtime code and imported authorship. Use published sibling branches directly, or apply the patch series to clean bases, never both. Syntax checks and kernel checksums passed. These source checks do not constitute a new recovery build or device test. Final fastboot USB driver compatibility remains pending. There are no release assets in the new standalone repository.

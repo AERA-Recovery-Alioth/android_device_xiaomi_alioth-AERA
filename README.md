@@ -26,12 +26,12 @@ Verified: UI/touch, brightness, timed haptics, RTC, 120 Hz selection, MTP,
 Boot backup, Android 17 password decryption, Virtual A/B ROM sideload,
 Magisk installation and current-recovery ramdisk installation.
 Data restore, other credential types and physical Mi 11X/Redmi K40 testing
-remain unverified. GUI frame pacing is configured for 120 FPS.
+remain unverified. Final fastboot USB driver compatibility is pending. GUI frame pacing is configured for 120 FPS.
 
 ## Rebuild
 
 Use a PBRP Android 14 checkout with this tree at `device/xiaomi/alioth`.
-Apply the pinned sibling [patch series](patches/README.md) once to clean bases.
+Use the published `pbrp-a17` sibling branches listed in the [patch guide](patches/README.md). Alternatively, apply the pinned series once to clean upstream bases; never apply it again to the published branches.
 The matching Android 17 kernel/DTB/DTBO are tracked in `prebuilt/`:
 `Image`, `dtbs/`, and `dtbo.img`; kernel sources are maintained separately.
 Run `device/xiaomi/alioth/tools/build-recovery.sh` (user build, Boot only).
