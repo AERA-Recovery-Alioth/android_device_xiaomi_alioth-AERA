@@ -27,7 +27,8 @@ domains. Wi-Fi startup loads the built-in CNSS/QCA6390 driver through native ini
 with read-only modem firmware, QRTR discovery and a WLAN-only DMS MAC provider.
 Factory identity files are never rewritten. Supplicant configuration is copied
 into RAM before starting the service. USB uses ConfigFS/FunctionFS readiness;
-haptics use the measured AW8697 activate/mode/duration nodes.
+haptics use the AW8697 evdev FF_CONSTANT interface instead of assuming an
+I2C bus number. The labeled activation nodes remain available for diagnostics.
 
 Policy build checks and neverallows remain enabled. The requested permissive
 runtime mode remains explicit until enforcing device acceptance is established.

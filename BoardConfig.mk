@@ -54,6 +54,8 @@ RECOVERY_SDCARD_ON_DATA := true
 AERA_INCLUDE_REPACKTOOLS := true
 AERA_INCLUDE_RESETPROP := true
 AERA_EXTRA_LANGUAGES := true
+# The shipped AW8697 driver exposes FF_CONSTANT; avoid I2C bus-number paths.
+AERA_SUPPORT_INPUT_FF_HAPTICS := true
 AERA_INPUT_BLACKLIST := hbtp_vm
 AERA_BRIGHTNESS_PATH := /sys/class/backlight/panel0-backlight/brightness
 AERA_DEFAULT_BRIGHTNESS := 1200

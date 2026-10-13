@@ -27,7 +27,7 @@ installed ROM for decryption. The maintained kernel hashes are in
 - QCA6390/CNSS, QRTR and recovery-local factory WLAN identity service.
 - Factory MAC read from persist mounted read-only without journal replay;
   firmware preparation and supplicant configuration stay in RAM.
-- Native ConfigFS/FunctionFS USB/MTP, AW8697 haptics and PM8150 RTC/LED paths.
+- Native ConfigFS/FunctionFS USB/MTP, AW8697 input force-feedback haptics and PM8150 RTC/LED paths.
 - Android 16 AIDL Health service and Adreno 650 native-buffer allocation.
 - Native recovery snapuserd and virtual A/B metadata support.
 - Density 440, spacious adaptive UI, text 125% and independently scaled controls 150%.

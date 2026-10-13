@@ -56,6 +56,9 @@ result['ueventd'] = 'syntax and staged copy checked; first API 30 loads legacy q
 properties = (staged / 'prop.default').read_text()
 assert re.search(r'^ro.product.first_api_level=30$', properties, re.M)
 
+assert 'AERA_SUPPORT_INPUT_FF_HAPTICS := true' in (device / 'BoardConfig.mk').read_text()
+variables = json.loads((root / 'out/soong/soong.twrp_alioth.variables').read_text())
+assert variables['VendorVars']['twrpVarsPlugin']['TW_SUPPORT_INPUT_FF_HAPTICS'] == 'true'
 assert (staged / 'system/bin/busybox').is_file() or (staged / 'sbin/busybox').is_file(), 'Missing WLAN probe utility'
 
 for name in ['system/bin/aera-alioth-wlan-mac', 'system/bin/snapuserd', 'system/bin/qrtr-ns', 'system/bin/cnss-daemon', 'system/bin/wpa_supplicant',
