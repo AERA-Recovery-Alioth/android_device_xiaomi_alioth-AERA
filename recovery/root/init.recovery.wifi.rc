@@ -1,0 +1,59 @@
+on boot
+    # Keep Xiaomi nv_mac factory provisioning available without modifying persist.
+    mkdir /mnt/vendor/persist 0755 root root
+    mount ext4 /dev/block/bootdevice/by-name/persist /mnt/vendor/persist ro nosuid nodev noload,context=u:object_r:vendor_alioth_recovery_persist_file:s0
+    start aera-qrtr-ns
+    start aera-wlan-mac
+
+service aera-qrtr-ns /system/bin/qrtr-ns -f
+    class core
+    user root
+    group root
+    capabilities NET_BIND_SERVICE
+    seclabel u:r:recovery:s0
+
+# Alioth QCA6390: qcacld and CNSS are built into the matching kernel.
+on property:sys.aera.wlan.up=1
+    start aera-wlan-mac
+    mkdir /vendor/firmware_mnt 0755 root root
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /vendor/firmware_mnt ro context=u:object_r:vendor_alioth_recovery_firmware_file:s0
+    mkdir /data/vendor/wifi 0770 root wifi
+    mkdir /data/vendor/wifi/sockets 0770 root wifi
+    start aera-cnss-daemon
+    write /sys/devices/platform/soc/b0000000.qcom,cnss-qca6390/fs_ready 1
+    write /dev/wlan "ON "
+    wait /sys/class/net/wlan0 20
+    mkdir /tmp/recovery 0755 root root
+    mkdir /tmp/recovery/sockets 0770 wifi wifi
+    chown wifi wifi /tmp/recovery/sockets
+    chmod 0770 /tmp/recovery/sockets
+    copy /system/etc/wifi/wpa_supplicant.conf /tmp/recovery/wpa_supplicant.conf
+    chown wifi wifi /tmp/recovery/wpa_supplicant.conf
+    chmod 0600 /tmp/recovery/wpa_supplicant.conf
+    restorecon /tmp/recovery/wpa_supplicant.conf
+    start wpa_supplicant
+    setprop sys.aera.wlan.up 0
+
+service wpa_supplicant /system/bin/wpa_supplicant -iwlan0 -Dnl80211 -c/tmp/recovery/wpa_supplicant.conf -O/tmp/recovery/sockets
+    class main
+    user wifi
+    group wifi inet net_admin net_raw
+    capabilities NET_ADMIN NET_RAW
+    disabled
+    seclabel u:r:vendor_alioth_recovery_supplicant:s0
+
+service aera-cnss-daemon /system/bin/cnss-daemon -n -l
+    user root
+    group root wifi inet net_admin
+    capabilities NET_ADMIN
+    disabled
+    seclabel u:r:recovery:s0
+
+# Factory WLAN identity is available from the read-only persist mount on boot.
+service aera-wlan-mac /system/bin/aera-alioth-wlan-mac
+    oneshot
+    class core
+    user root
+    group root wifi inet net_admin
+    disabled
+    seclabel u:r:recovery:s0

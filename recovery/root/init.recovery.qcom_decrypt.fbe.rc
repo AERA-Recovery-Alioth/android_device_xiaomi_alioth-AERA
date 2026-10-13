@@ -1,7 +1,5 @@
-import /init.recovery.services.qcom_decrypt.fbe.rc
-
-on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-    install_keyring
+# Android 16 init has no install_keyring builtin. Recovery FBE installs keys
+# through native FS_IOC_ADD_ENCRYPTION_KEY in system/vold/KeyUtil.cpp.
 
 on property:vendor.sys.listeners.registered=true
     start gatekeeper-1-0-qti

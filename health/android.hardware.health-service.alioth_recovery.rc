@@ -1,0 +1,7 @@
+service vendor.health-recovery /system/bin/hw/android.hardware.health-service.alioth_recovery
+    class hal
+    seclabel u:r:vendor_alioth_recovery_health:s0
+    user system
+    group system
+    capabilities WAKE_ALARM BLOCK_SUSPEND
+    file /dev/kmsg w

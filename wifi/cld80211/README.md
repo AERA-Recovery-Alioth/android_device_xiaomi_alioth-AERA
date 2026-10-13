@@ -1,0 +1,1 @@
+Source copied unchanged from hardware/qcom/wlan/legacy/cld80211-lib at f477643e8d25de433c175743e17a28fa87d17a97. Original Qualcomm copyright and BSD license are retained in both files. Android.bp builds a recovery-only variant for the Alioth CNSS client.

@@ -1,6 +1,9 @@
 # Device manager scheduling; measured on the Alioth recovery kernel.
 recovery_only(`
   # Recovery executables remain rootfs-labeled, as in AOSP recovery transitions.
+  # Native on-demand snapshot services retain the enforcing snapuserd domain.
+  domain_trans(init, rootfs, snapuserd)
+  r_dir_file(snapuserd, rootfs)
   domain_trans(init, rootfs, logd)
   r_dir_file(logd, rootfs)
   allow init vendor_alioth_recovery_backlight:file w_file_perms;
@@ -8,4 +11,67 @@ recovery_only(`
   allow init recovery:key search;
   allow init vendor_alioth_recovery_usb_mode:file w_file_perms;
   allow ueventd self:global_capability_class_set sys_nice;
+')
+
+recovery_only(`
+  # context= sets the superblock label too; contextmount_type grants relabelto
+  # but these read-only firmware labels also need actual filesystem mount access.
+  allow { init recovery } { vendor_alioth_recovery_firmware_file vendor_alioth_recovery_bt_firmware_file }:filesystem { mount unmount getattr relabelfrom };
+  allow { vendor_alioth_recovery_firmware_file vendor_alioth_recovery_bt_firmware_file vendor_alioth_recovery_spunvm_file } self:filesystem associate;
+  # SPU NV uses its own writable VFAT label, not a read-only contextmount type.
+  allow init vendor_alioth_recovery_spunvm_file:filesystem { relabelto relabelfrom mount };
+  allow recovery vendor_alioth_recovery_spunvm_file:filesystem { relabelto relabelfrom mount unmount getattr };
+  r_dir_file(recovery, { vendor_alioth_recovery_firmware_file vendor_alioth_recovery_bt_firmware_file })
+')
+
+# Recovery has a system-installed AIDL Health service, distinct from ROM vendor HALs.
+recovery_only(`
+  type vendor_alioth_recovery_health, domain, coredomain;
+  typeattribute vendor_alioth_recovery_health bpfdomain;
+  hal_server_domain(vendor_alioth_recovery_health, hal_health)
+  init_daemon_domain(vendor_alioth_recovery_health)
+  binder_use(vendor_alioth_recovery_health)
+  r_dir_file(vendor_alioth_recovery_health, rootfs)
+  # Recovery linker/shared libraries are rootfs-labeled.
+  allow vendor_alioth_recovery_health rootfs:file execute;
+')
+
+recovery_only(`
+  allow { init recovery } vendor_alioth_recovery_persist_file:filesystem { mount unmount getattr relabelfrom };
+  allow vendor_alioth_recovery_persist_file self:filesystem associate;
+  r_dir_file(recovery, vendor_alioth_recovery_persist_file)
+')
+
+# Recovery-only QRTR clients and the local factory MAC provider.
+recovery_only(`
+  allow recovery self:qipcrtr_socket { create bind read write getattr getopt setopt };
+')
+
+# Native Android HAL attributes provide the Binder/service registration rules.
+recovery_only(`
+  type vendor_alioth_recovery_allocator, domain, coredomain;
+  init_daemon_domain(vendor_alioth_recovery_allocator)
+  hal_server_domain(vendor_alioth_recovery_allocator, hal_graphics_allocator)
+  binder_use(vendor_alioth_recovery_allocator)
+  r_dir_file(vendor_alioth_recovery_allocator, rootfs)
+  allow vendor_alioth_recovery_allocator rootfs:file execute;
+  allow vendor_alioth_recovery_allocator self:capability sys_nice;
+  hal_client_domain(recovery, hal_graphics_allocator)
+
+  type vendor_alioth_recovery_supplicant, domain, coredomain;
+  init_daemon_domain(vendor_alioth_recovery_supplicant)
+  hal_server_domain(vendor_alioth_recovery_supplicant, hal_wifi_supplicant)
+  net_domain(vendor_alioth_recovery_supplicant)
+  binder_use(vendor_alioth_recovery_supplicant)
+  r_dir_file(vendor_alioth_recovery_supplicant, rootfs)
+  allow vendor_alioth_recovery_supplicant rootfs:file execute;
+  allow vendor_alioth_recovery_supplicant self:capability { net_admin net_raw };
+  allow vendor_alioth_recovery_supplicant self:netlink_route_socket { create read write bind getattr getopt setopt nlmsg_read nlmsg_write };
+  allow vendor_alioth_recovery_supplicant tmpfs:dir rw_dir_perms;
+  allow vendor_alioth_recovery_supplicant vendor_alioth_recovery_wifi_config_file:file rw_file_perms;
+  allow vendor_alioth_recovery_supplicant vendor_alioth_recovery_wifi_socket:sock_file create_file_perms;
+  type_transition vendor_alioth_recovery_supplicant tmpfs:sock_file vendor_alioth_recovery_wifi_socket;
+  allow recovery vendor_alioth_recovery_wifi_socket:sock_file { getattr write };
+  allow recovery vendor_alioth_recovery_supplicant:unix_dgram_socket sendto;
+  allow vendor_alioth_recovery_supplicant recovery:unix_dgram_socket sendto;
 ')

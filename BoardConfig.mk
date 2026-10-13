@@ -2,13 +2,13 @@
 # Recovery adaptation of the current Alioth Android 17 board configuration.
 DEVICE_PATH := device/xiaomi/alioth
 TARGET_ARCH := arm64
-TARGET_ARCH_VARIANT := armv8-2a
+TARGET_ARCH_VARIANT := armv8-2a-dotprod
 TARGET_CPU_ABI := arm64-v8a
 TARGET_CPU_VARIANT := cortex-a76
 TARGET_2ND_ARCH := arm
 TARGET_2ND_ARCH_VARIANT := armv8-a
 TARGET_2ND_CPU_ABI := armeabi-v7a
-TARGET_2ND_CPU_VARIANT := generic
+TARGET_2ND_CPU_VARIANT := cortex-a76
 TARGET_BOARD_PLATFORM := kona
 TARGET_BOOTLOADER_BOARD_NAME := kona
 TARGET_NO_BOOTLOADER := true
@@ -43,22 +43,22 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery/root/system/etc/recovery.fstab
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 TARGET_OTA_ASSERT_DEVICE := alioth,aliothin
 TARGET_SCREEN_DENSITY := 440
-TW_THEME := portrait_hdpi
-TW_FRAMERATE := 120
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_CRYPTO_FBE := true
-TW_INCLUDE_FBE_METADATA_DECRYPT := true
-TW_USE_FSCRYPT_POLICY := 2
+AERA_THEME := portrait_hdpi
+AERA_FRAMERATE := 120
+AERA_INCLUDE_CRYPTO := true
+AERA_INCLUDE_CRYPTO_FBE := true
+AERA_INCLUDE_FBE_METADATA_DECRYPT := true
+AERA_USE_FSCRYPT_POLICY := 2
 BOARD_USES_QCOM_FBE_DECRYPTION := true
 RECOVERY_SDCARD_ON_DATA := true
-TW_INCLUDE_REPACKTOOLS := true
-TW_INCLUDE_RESETPROP := true
-TW_EXTRA_LANGUAGES := true
-TW_INPUT_BLACKLIST := hbtp_vm
-TW_BRIGHTNESS_PATH := /sys/class/backlight/panel0-backlight/brightness
-TW_DEFAULT_BRIGHTNESS := 1200
-TW_MAX_BRIGHTNESS := 2047
-TW_EXCLUDE_DEFAULT_USB_INIT := true
+AERA_INCLUDE_REPACKTOOLS := true
+AERA_INCLUDE_RESETPROP := true
+AERA_EXTRA_LANGUAGES := true
+AERA_INPUT_BLACKLIST := hbtp_vm
+AERA_BRIGHTNESS_PATH := /sys/class/backlight/panel0-backlight/brightness
+AERA_DEFAULT_BRIGHTNESS := 1200
+AERA_MAX_BRIGHTNESS := 2047
+AERA_EXCLUDE_DEFAULT_USB_INIT := true
 TWRP_INCLUDE_LOGCAT := true
 TARGET_USES_LOGD := true
 TARGET_USES_MKE2FS := true
@@ -74,3 +74,30 @@ TARGET_RECOVERY_QCOM_RTC_FIX := true
 
 # Device labels and permissions for direct recovery hardware access.
 BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/recovery
+
+# AERA Alioth device configuration.
+AERA_DEVICE_VERSION := Alioth
+AERA_UI_ADAPTIVE_RESOLUTION := true
+# AERA pages use their authored canvas; keep the official adaptive renderer.
+AERA_STATUS_H := 124
+AERA_STATUS_INDENT_LEFT := 54
+AERA_STATUS_INDENT_RIGHT := 54
+AERA_SKIP_ADDITIONAL_FSTAB := true
+
+TARGET_BOARD_INFO_FILE := $(DEVICE_PATH)/board-info.txt
+BOARD_KERNEL_SEPARATED_DTBO := true
+BOARD_USES_QCOM_HARDWARE := true
+
+# Force the recovery ramdisk during fastboot boot on Alioth header-v3 Boot.
+BOARD_MKBOOTIMG_ARGS += --cmdline "twrpfastboot=1 printk.devkmsg=on"
+
+# Native AERA PC connection and WLAN stack.
+AERA_ENABLE_WLAN := 1
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+WPA_SUPPLICANT_VERSION := VER_0_8_X
+
+# Select the physical panel mode; native UI pacing independently targets 120 Hz.
+AERA_DRM_FIXED_REFRESH_RATE := 120
+
+# Match the current Evo allocator/native-handle layout.
+TARGET_GRALLOC_HANDLE_HAS_RESERVED_SIZE := true

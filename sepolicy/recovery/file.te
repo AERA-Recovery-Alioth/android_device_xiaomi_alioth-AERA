@@ -3,3 +3,21 @@ type vendor_alioth_recovery_backlight, fs_type, sysfs_type;
 type vendor_alioth_recovery_haptics, fs_type, sysfs_type;
 
 type vendor_alioth_recovery_usb_mode, fs_type, sysfs_type;
+
+# Minimal recovery mount labels, adapted from current Evo Qualcomm legacy-um
+# firmware/context-mount and SPU filesystem policy. No ROM HAL grants imported.
+type vendor_alioth_recovery_firmware_file, file_type, contextmount_type, vendor_file_type;
+type vendor_alioth_recovery_bt_firmware_file, file_type, contextmount_type, vendor_file_type;
+type vendor_alioth_recovery_spunvm_file, file_type;
+
+# The recovery Health executable is installed under /system.
+type vendor_alioth_recovery_health_exec, exec_type, file_type, system_file_type;
+
+# Read-only factory Wi-Fi provisioning, with no writable calibration access.
+type vendor_alioth_recovery_persist_file, file_type, contextmount_type, vendor_file_type;
+
+# System-installed recovery HAL executables.
+type vendor_alioth_recovery_allocator_exec, exec_type, file_type, system_file_type;
+type vendor_alioth_recovery_supplicant_exec, exec_type, file_type, system_file_type;
+type vendor_alioth_recovery_wifi_config_file, file_type;
+type vendor_alioth_recovery_wifi_socket, file_type;

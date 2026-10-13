@@ -1,0 +1,10 @@
+// Recovery variant of hardware/qcom/wlan/legacy/cld80211-lib.
+cc_library_shared {
+    name: "libcld80211_alioth_recovery",
+    stem: "libcld80211",
+    recovery: true,
+    shared_libs: ["libcutils", "libnl", "liblog"],
+    srcs: ["cld80211_lib.c"],
+    cflags: ["-Wall", "-Werror", "-Wno-unused-parameter"],
+    export_include_dirs: ["."],
+}
