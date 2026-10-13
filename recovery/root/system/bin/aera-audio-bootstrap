@@ -1,0 +1,24 @@
+#!/system/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Alioth audio drivers are built into the bundled kernel. Never load ROM modules.
+PATH=/system/bin:/sbin
+export PATH
+exec >/tmp/aera-audio-bootstrap.log 2>&1
+chmod 0644 /tmp/aera-audio-bootstrap.log
+case "$(getprop ro.product.device)" in
+    alioth) ;;
+    *) echo "AERA audio: unsupported device" >&2; exit 1 ;;
+esac
+setprop sys.aera.audio.ready 0
+attempt=0
+while [ ! -e /dev/snd/controlC0 ] && [ "$attempt" -lt 100 ]; do
+    attempt=$((attempt + 1))
+    sleep 0.1
+done
+[ -e /dev/snd/controlC0 ] || {
+    echo "AERA audio: ADSP sound card unavailable" >&2
+    dmesg | grep -iE 'apr|q6|cs35|locator|pdr|snd.card|firmware' | tail -n 40
+    exit 1
+}
+/system/bin/aera-audio-bridge --prepare || exit 1
+setprop sys.aera.audio.ready 1

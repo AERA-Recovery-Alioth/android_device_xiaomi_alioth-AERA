@@ -21,3 +21,6 @@ type vendor_alioth_recovery_allocator_exec, exec_type, file_type, system_file_ty
 type vendor_alioth_recovery_supplicant_exec, exec_type, file_type, system_file_type;
 type vendor_alioth_recovery_wifi_config_file, file_type;
 type vendor_alioth_recovery_wifi_socket, file_type;
+
+# Only init may request the bundled ADSP loader.
+type vendor_alioth_recovery_adsp_boot, fs_type, sysfs_type;

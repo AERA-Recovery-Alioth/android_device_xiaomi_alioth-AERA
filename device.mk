@@ -69,3 +69,7 @@ PRODUCT_PROPERTY_OVERRIDES += ro.aera.selinux.permissive=1
 
 # Keep native init and the WLAN backend on the same RAM-local configuration.
 PRODUCT_PROPERTY_OVERRIDES += ro.aera.wlan.supplicant_conf=/tmp/recovery/wpa_supplicant.conf
+
+# Device PCM bridge for browser, media and Doom; untrusted UIDs keep no ALSA access.
+PRODUCT_PACKAGES += aera-audio-bridge
+PRODUCT_PACKAGES += aera-alioth-pd-mapper

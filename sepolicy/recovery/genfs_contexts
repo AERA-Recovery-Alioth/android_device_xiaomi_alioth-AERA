@@ -14,3 +14,5 @@ genfscon sysfs /devices/platform/soc/c440000.qcom,spmi/spmi-0/spmi0-05/c440000.q
 genfscon sysfs /devices/platform/soc/c440000.qcom,spmi/spmi-0/spmi0-00/c440000.qcom,spmi:qcom,pm8150@0:qcom,pm8150_rtc/rtc  u:object_r:sysfs_rtc:s0
 
 genfscon sysfs /devices/platform/soc/c440000.qcom,spmi/spmi-0/spmi0-02/c440000.qcom,spmi:qcom,pm8150b@2:qcom,qpnp-smb5/power_supply u:object_r:sysfs_batteryinfo:s0
+
+genfscon sysfs /kernel/boot_adsp/boot u:object_r:vendor_alioth_recovery_adsp_boot:s0

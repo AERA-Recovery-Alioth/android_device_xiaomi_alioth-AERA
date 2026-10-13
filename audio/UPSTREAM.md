@@ -17,3 +17,8 @@ Only the fixed AERA PCM protocol is accepted; plugins receive no ALSA nodes.
 Local transport tests are in `tools/test-audio-bridge.sh`.
 
 PD mapper source: https://github.com/andersson/pd-mapper/commit/5ecd2fe926aca7abfe40724177f63b942cff3947; upstream BSD-3-Clause license retained. Shared QRTR sources are the existing Alioth WLAN dependency.
+
+Alioth uses the platform JsonCpp parser for read-only uncompressed `.jsn`
+service maps. File size, nesting, strings, service count and instance values
+are validated. It shares the recovery-local QRTR service and advertises the
+ADSP audio protection domain before the kernel creates its sound-card children.

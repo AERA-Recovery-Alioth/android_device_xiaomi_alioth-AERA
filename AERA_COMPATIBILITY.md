@@ -56,3 +56,17 @@ terminal-only diagnostic services are removed.
 Use the published manifest and per-release verification report for exact
 source revisions, local checks and device results. Device acceptance must cover
 startup, touch, brightness, decryption and networking before publication.
+
+## Native audio bridge
+
+Alioth now packages the AERA audio socket bridge with its CS35L41 protected
+TDM speaker route, read-only ADSP firmware startup and bundled amplifier
+protection files. The OP8 Pro bridge protocol and TinyALSA source are imported
+with original authorship and licenses. Browser/media/Doom UIDs alone may
+stream 48 kHz stereo S16 PCM; plugins do not receive ALSA access. Handshake,
+bootstrap and PCM waits are bounded; failed preparation disables the route.
+Native user build, policy checks and sanitized transport/protocol tests pass.
+Temporary boot registers `kona-mtp-snd-card` and completes protected setup;
+the user confirmed audible Doom playback and successful Reboot to Android.
+The earlier reboot stall was not reproduced; its cause is not established.
+Nothing was flashed.

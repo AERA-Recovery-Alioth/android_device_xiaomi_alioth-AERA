@@ -52,9 +52,21 @@ for line in ueventd.read_text().splitlines():
         int(fields[2], 8)
     else:
         assert fields[0] == 'firmware_directories' and len(fields) > 1, line
+        assert all(path.endswith('/') for path in fields[1:]), 'ueventd concatenates firmware paths directly: ' + line
 result['ueventd'] = 'syntax and staged copy checked; first API 30 loads legacy qcom file'
 properties = (staged / 'prop.default').read_text()
 assert re.search(r'^ro.product.first_api_level=30$', properties, re.M)
+
+# Audio frontend, bootstrap and amplifier protection must ship together.
+assert (staged / 'system/bin/aera-audio-bridge').is_file()
+assert (staged / 'system/bin/aera-alioth-pd-mapper').is_file()
+assert (staged / 'system/bin/aera-audio-bootstrap').read_bytes() == (device / 'recovery/root/system/bin/aera-audio-bootstrap').read_bytes()
+for name in ['cs35l41-dsp1-spk-prot.wmfw', 'cs35l41-dsp1-spk-prot.bin',
+             'cs35l41-dsp1-spk-prot-RCV.bin', 'cs35l41-dsp1-spk-prot-revb2.wmfw',
+             'cs35l41-dsp1-spk-prot-revb2.bin', 'cs35l41-dsp1-spk-prot-RCV-revb2.bin',
+             'spk1_playback_delta.txt', 'spk2_playback_delta.txt']:
+    assert (staged / 'system/etc/aera/audio/firmware' / name).read_bytes() == (device / 'recovery/root/system/etc/aera/audio/firmware' / name).read_bytes()
+result['audio_configuration'] = 'Bundled protected CS35L41 TDM route, built-in drivers, read-only ADSP firmware; hardware playback requires separate acceptance'
 
 assert 'AERA_SUPPORT_INPUT_FF_HAPTICS := true' in (device / 'BoardConfig.mk').read_text()
 variables = json.loads((root / 'out/soong/soong.twrp_alioth.variables').read_text())
@@ -149,6 +161,8 @@ with tempfile.TemporaryDirectory(prefix='aera-driver-policy-') as directory:
                ('recovery', 'vendor_alioth_recovery_wifi_socket', 'sock_file', 'write'),
                ('recovery', supplicant, 'unix_dgram_socket', 'sendto'),
                (supplicant, 'recovery', 'unix_dgram_socket', 'sendto')]
+    checks += [('recovery', 'audio_device', 'chr_file', p) for p in ['read', 'write', 'open', 'ioctl', 'map']]
+    checks += [('init', 'vendor_alioth_recovery_adsp_boot', 'file', 'write')]
     for check in checks:
         output = subprocess.check_output([str(binary), str(policy), *check], text=True).strip()
         result['policy_permissions'].append(output)

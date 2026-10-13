@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+recovery_only(`
+  # Native recovery access; jailed plugin UIDs receive no ALSA nodes.
+  allow recovery audio_device:dir { search open read getattr };
+  allow recovery audio_device:chr_file { open read write getattr ioctl map };
+  # Exact TinyALSA playback/control requests; no ioctl class ranges.
+  allowxperm recovery audio_device:chr_file ioctl { 0x5501 0x5511 0x5510 0x5512 0x5513 0x4121 0x4144 0x4143 0x4122 0x4111 0x4110 0x4101 0x4140 0x4142 0x4113 0x4123 0x4103 0x4150 };
+  allow init vendor_alioth_recovery_adsp_boot:file { open write getattr };
+')

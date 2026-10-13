@@ -5,7 +5,7 @@ cc_binary {
     name: "aera-audio-bridge",
     recovery: true,
     srcs: ["aera_audio_bridge.cpp"],
-    static_libs: ["libaera_tinyalsa"],
+    static_libs: ["libaera_alioth_tinyalsa"],
     cpp_std: "c++17",
     cflags: [
         "-Wall",
@@ -14,8 +14,16 @@ cc_binary {
     ],
 }
 
+license {
+    name: "aera_alioth_tinyalsa_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-BSD-3-Clause"],
+    license_text: ["tinyalsa/NOTICE"],
+}
+
 cc_library_static {
-    name: "libaera_tinyalsa",
+    name: "libaera_alioth_tinyalsa",
+    licenses: ["aera_alioth_tinyalsa_license"],
     recovery: true,
     srcs: [
         "tinyalsa/src/mixer.c",
@@ -35,4 +43,20 @@ cc_library_static {
         "-Werror",
         "-Wno-macro-redefined",
     ],
+}
+
+license {
+    name: "aera_alioth_pd_mapper_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-BSD-3-Clause"],
+    license_text: ["pd-mapper/LICENSE"],
+}
+cc_binary {
+    name: "aera-alioth-pd-mapper",
+    licenses: ["aera_alioth_pd_mapper_license"],
+    recovery: true,
+    srcs: ["pd-mapper/pd-mapper.cpp", "pd-mapper/assoc.c", "pd-mapper/servreg_loc.c"],
+    static_libs: ["libaera_alioth_qrtr", "libjsoncpp"],
+    cpp_std: "c++17",
+    cflags: ["-D_GNU_SOURCE", "-Wall", "-Wextra", "-Wno-sign-compare", "-Wno-unused-parameter"],
 }

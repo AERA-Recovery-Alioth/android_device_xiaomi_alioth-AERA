@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Private mounts stay visible when decryption mounts the installed /vendor.
+on boot
+    mkdir /mnt/vendor 0755 root root
+    mkdir /mnt/vendor/audio_firmware 0755 root root
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /mnt/vendor/audio_firmware ro context=u:object_r:vendor_alioth_recovery_firmware_file:s0
+    mkdir /mnt/vendor/audio_dsp 0755 root root
+    mount ext4 /dev/block/bootdevice/by-name/dsp${ro.boot.slot_suffix} /mnt/vendor/audio_dsp ro nosuid nodev noload,context=u:object_r:vendor_alioth_recovery_firmware_file:s0
+    start aera-qrtr-ns
+    start aera-alioth-pd-mapper
+    write /sys/kernel/boot_adsp/boot 1u
+    start aera-audio-prepare
+
+service aera-audio-prepare /system/bin/aera-audio-bootstrap
+    class core
+    user root
+    group root audio
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+    stdio_to_kmsg
+
+service aera-alioth-pd-mapper /system/bin/aera-alioth-pd-mapper
+    class core
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0
+    stdio_to_kmsg

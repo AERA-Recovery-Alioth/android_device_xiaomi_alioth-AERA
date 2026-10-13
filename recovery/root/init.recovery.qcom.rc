@@ -1,3 +1,4 @@
+import /init.recovery.audio.rc
 import /system/etc/init/snapuserd.rc
 import /init.recovery.wifi.rc
 import /init.recovery.qcom_decrypt.rc

@@ -21,7 +21,7 @@ struct qmi_elem_info servreg_loc_qmi_result_ei[] = {
 struct qmi_elem_info servreg_loc_domain_list_entry_ei[] = {
 	{
 		.data_type = QMI_STRING,
-		.elem_len = 256,
+		.elem_len = 255,
 		.elem_size = sizeof(char),
 		.offset = offsetof(struct servreg_loc_domain_list_entry, name)
 	},
@@ -49,9 +49,9 @@ struct qmi_elem_info servreg_loc_domain_list_entry_ei[] = {
 struct qmi_elem_info servreg_loc_get_domain_list_req_ei[] = {
 	{
 		.data_type = QMI_STRING,
-		.elem_len = 256,
+		.elem_len = 255,
 		.elem_size = sizeof(char),
-		.array_type = VAR_LEN_ARRAY,
+		.array_type = NO_ARRAY,
 		.tlv_type = 1,
 		.offset = offsetof(struct servreg_loc_get_domain_list_req, name)
 	},
@@ -138,17 +138,17 @@ struct qmi_elem_info servreg_loc_get_domain_list_resp_ei[] = {
 struct qmi_elem_info servreg_loc_pfr_req_ei[] = {
 	{
 		.data_type = QMI_STRING,
-		.elem_len = 256,
+		.elem_len = 255,
 		.elem_size = sizeof(char),
-		.array_type = VAR_LEN_ARRAY,
+		.array_type = NO_ARRAY,
 		.tlv_type = 1,
 		.offset = offsetof(struct servreg_loc_pfr_req, service)
 	},
 	{
 		.data_type = QMI_STRING,
-		.elem_len = 256,
+		.elem_len = 255,
 		.elem_size = sizeof(char),
-		.array_type = VAR_LEN_ARRAY,
+		.array_type = NO_ARRAY,
 		.tlv_type = 2,
 		.offset = offsetof(struct servreg_loc_pfr_req, reason)
 	},
